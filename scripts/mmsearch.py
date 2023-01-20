@@ -9,14 +9,14 @@ from Bio.SeqRecord import SeqRecord
 
 print('Script requires: mmseqs pandas subprocess pathlib biopython clustalo')
 print('Create env with:\nconda create -n mmseqs -c conda-forge -c bioconda pandas subprocess pathlib biopython clustalo')
-print('Runing mmseqs2 search!')
+print('Runing mmseqs2 search!\n')
 
 def wrap_command(cmd, envname='mmseqs'):
     cmd = f'conda run -n {envname} {cmd}'
     return cmd
 
 
-def msa(stem, indir, outdir, format='fasta'):
+def msa(stem, indir, outdir, format='fasta', threads=8):
     """
     stem = 'prot1'
     """
@@ -32,58 +32,76 @@ def msa(stem, indir, outdir, format='fasta'):
                     ########## SEARCH ##########
                     ############################
 
-# paths and params
-query = '/Users/januszkoszucki/tmp/query.fasta'
-target = '/Users/januszkoszucki/tmp/target.fasta'
+# paths
+query = '/Users/januszkoszucki/tmp/insertion_sequence.fasta'
+target = '/Users/januszkoszucki/tmp/proteins.fasta'
 working_dir = '/Users/januszkoszucki/tmp'
-SENSITIVITY = '8.5'
+
+working_dir = str(Path(working_dir))
+
+# params
+SENSITIVITY = 8.5
+threads = 8
+verbose = True
+
 
 # create mmseqs databases
-querydb_dir = f'{working_dir}/1_SEARCH/MMSEQSDB-QUERY'
-targetdb_dir = f'{working_dir}/1_SEARCH/MMSEQSDB-TARGET'
-search_dir = f'{working_dir}/1_SEARCH/SEARCH'
+search_dir = Path(working_dir, '1_SEARCH')
+querydb_dir = Path(search_dir, 'MMSEQSDB-QUERY')
+targetdb_dir = Path(search_dir, 'MMSEQSDB-TARGET')
+results_dir = Path(search_dir, 'RESULTS')
 
 # create directories
 Path(querydb_dir).mkdir(exist_ok=True, parents=True)
 Path(targetdb_dir).mkdir(exist_ok=True, parents=True)
-Path(search_dir).mkdir(exist_ok=True, parents=True)
+Path(results_dir).mkdir(exist_ok=True, parents=True)
 
 querydb = f'mmseqs createdb "{query}" "{querydb_dir}/MMSEQSDB-QUERY"'
 targetdb = f'mmseqs createdb "{target}" "{targetdb_dir}/MMSEQSDB-TARGET"'
-search = f'mmseqs search "{querydb_dir}/MMSEQSDB-QUERY" "{targetdb_dir}/MMSEQSDB-TARGET" "{search_dir}/SEARCH" "{working_dir}/TMP" -s {SENSITIVITY}'
-results = f'mmseqs convertalis "{querydb_dir}/MMSEQSDB-QUERY" "{targetdb_dir}/MMSEQSDB-TARGET" "{search_dir}/SEARCH" "{working_dir}/raw_results.tsv" --format-output "query,target,pident,evalue,bits,qcov,tcov,qstart,qend,qlen,tstart,tend,tlen,qseq,tseq"'
+search = f'mmseqs search "{querydb_dir}/MMSEQSDB-QUERY" "{targetdb_dir}/MMSEQSDB-TARGET" "{results_dir}/RESULTS" "{working_dir}/TMP" -s {str(SENSITIVITY)}'
+results = f'mmseqs convertalis "{querydb_dir}/MMSEQSDB-QUERY" "{targetdb_dir}/MMSEQSDB-TARGET" "{results_dir}/RESULTS" "{search_dir}/raw_results.tsv" --format-output "query,target,pident,evalue,bits,qcov,tcov,qstart,qend,qlen,tstart,tend,tlen,qseq,tseq"'
 
 # wrap all commands
 querydb, targetdb, search, results = list(map(wrap_command, [querydb, targetdb, search, results]))
 
 # search
 print('Create mmseqs databases... ', end = '')
+if verbose: print('\n' + querydb)
+if verbose: print('\n' + targetdb)
+
 run(querydb, shell=True, capture_output=True)
 run(targetdb, shell=True, capture_output=True)
 print('Done!')
 
 print('Run search... ', end = '')
+if verbose: print('\n' + search)
 run(search, shell=True, capture_output=True)
 print('Done!')
 
 print('Convert results... ', end='')
+if verbose: print('\n' + results)
 run(results, shell=True, capture_output=True)
 print('Done!')
 
 # load
-mmseqs_search_default_cols = ['query', 'target', 'bitscore', 'ident', 'eval', 'qstart', 'qend', 'qlen', 'tstart', 'tend', 'tlen']
+# mmseqs_search_default_cols = ['query', 'target', 'bitscore', 'ident', 'eval', 'qstart', 'qend', 'qlen', 'tstart', 'tend', 'tlen']
 cols = ['query','target','pident','eval','bits','qcov','tcov','qstart','qend','qlen','tstart','tend','tlen','qseq','tseq']
 
-results_df = pd.read_csv(f"{working_dir}/raw_results.tsv", sep='\t', header=None)
+results_df = pd.read_csv(f"{working_dir}/1_SEARCH/raw_results.tsv", sep='\t', header=None)
 results_df.columns = cols
-results_df.to_csv(f"{working_dir}/results.tsv", sep='\t', index=False)
+
+filt_ident = (results_df['pident'] >= 30)
+filt_cov = (results_df['qcov'] >= 0.3) & (results_df['tcov'] >= 0.3)
+filt_eval = (results_df['eval'] <= 10**-3)
+
+results_df = results_df.loc[filt_ident & filt_cov & filt_eval]
+results_df.to_csv(f"{search_dir}/results.tsv", sep='\t', index=False)
 
 
                     #########################
                     ####### ALIGNMENT #######
                     #########################
 # paths & params
-working_dir = '/Users/januszkoszucki/tmp'
 alignment_dir = Path(working_dir, '2_ALIGNMENTS')
 fasta_dir = Path(alignment_dir, '1_FASTA_PER_QUERY')
 msa_dir = Path(alignment_dir, '2_MSA_PER_QUERY')
@@ -95,23 +113,24 @@ Path(msa_dir).mkdir(exist_ok=True, parents=True)
 
 ### alignment fasta for each query
 print('WARNING! Self hits are not filtered.')
-print('Generate MSA per query... ', end='')
 query_df = results_df.drop_duplicates('query')
 queries = query_df['query'].to_list()
+print(f'Generate MSA per query (n={len(queries)})... ')
 
-for query in queries:
-
+for i, query in enumerate(queries):
+    print(f'Processing {i+1} query out of {len(queries)}')
     # path
     proteins = Path(fasta_dir, f'{query}.fasta')
 
     # per query
     filt_query = (query_df['query'] == query)
     qseq = query_df.loc[filt_query].iloc[0]['qseq']
-    rows_targets = list(results_df[['target', 'tseq']].itertuples(index=False, name=None)) # targets
+
+    filt_query = (results_df['query'] == query)
+    rows_targets = list(results_df.loc[filt_query, ['target', 'tseq']].itertuples(index=False, name=None)) # targets
 
     # query and its hits
-    rows = [(query, qseq)] + list(rows_targets)
-
+    rows = [(str(query), qseq)] + list(rows_targets)
     records = []
     for target, seq in rows:
         # create records
@@ -125,8 +144,9 @@ for query in queries:
 
     n = SeqIO.write(records, proteins, 'fasta')
 
-    cmd = msa(query, fasta_dir, msa_dir)
+    cmd = msa(query, fasta_dir, msa_dir, threads=threads)
     cmd = wrap_command(cmd)
+    if verbose: print(cmd)
     run(cmd, shell=True, capture_output=True)
 
 print('Done!')

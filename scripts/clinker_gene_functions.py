@@ -10,23 +10,21 @@ def frame(records):
             qualifiers = f.qualifiers
             try:
                 proteinIDs.append(qualifiers['proteinID'][0])
-                cats.append(qualifiers['note'][0])
+                cats.append(qualifiers['PC'][0])
             except:
                 print('Error in qualifiers!!!!')
                 print(qualifiers)
     return proteinIDs, cats
 
 
-genbanks = list(Path('/Users/januszkoszucki/tmp').glob('*.gb'))
-gene_functions_csv = Path('/Users/januszkoszucki/tmp/gf.csv')
+genbanks = list(Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/DATABASES/ANNOTATION_IDENT30_COV80-KPH-KBVP1/3_PROPAHGES_GENBANK').glob('*.gb'))
+gene_functions_csv = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/DATABASES/ANNOTATION_IDENT30_COV80-KPH-KBVP1/gf-KPH-KBVP1.csv')
 
 records = []
 for genbank in genbanks:
     records.append(list(SeqIO.parse(genbank, 'genbank')))
 
 records = list(itertools.chain(*records))
-records = records[:2]
-
 proteinIDs, cats = frame(records)
 
 df = pd.DataFrame({'proteinID': proteinIDs, 'category': cats})
