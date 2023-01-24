@@ -33,16 +33,17 @@ def msa(stem, indir, outdir, format='fasta', threads=8):
                     ############################
 
 # paths
-query = '/Users/januszkoszucki/tmp/insertion_sequence.fasta'
-target = '/Users/januszkoszucki/tmp/proteins.fasta'
-working_dir = '/Users/januszkoszucki/tmp'
+query = '/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR/DRULIS-KAWA/4_BASIA_SEQ_IN_LYTIC_RBPS/REAL_ID.fasta'
+target = '/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR/DRULIS-KAWA/4_BASIA_SEQ_IN_LYTIC_RBPS/LYTIC_RBPs.fasta'
+working_dir = '/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR/DRULIS-KAWA/4_BASIA_SEQ_IN_LYTIC_RBPS'
 
 working_dir = str(Path(working_dir))
 
 # params
 SENSITIVITY = 8.5
 threads = 8
-verbose = True
+verbose = False
+pidet, qcov, tcov, eval = 30, 0.3, 0, 10**-3
 
 
 # create mmseqs databases
@@ -90,9 +91,9 @@ cols = ['query','target','pident','eval','bits','qcov','tcov','qstart','qend','q
 results_df = pd.read_csv(f"{working_dir}/1_SEARCH/raw_results.tsv", sep='\t', header=None)
 results_df.columns = cols
 
-filt_ident = (results_df['pident'] >= 30)
-filt_cov = (results_df['qcov'] >= 0.3) & (results_df['tcov'] >= 0.3)
-filt_eval = (results_df['eval'] <= 10**-3)
+filt_ident = (results_df['pident'] >= pident)
+filt_cov = (results_df['qcov'] >= qcov) & (results_df['tcov'] >= tcov)
+filt_eval = (results_df['eval'] <= eval)
 
 results_df = results_df.loc[filt_ident & filt_cov & filt_eval]
 results_df.to_csv(f"{search_dir}/results.tsv", sep='\t', index=False)
@@ -149,4 +150,12 @@ for i, query in enumerate(queries):
     if verbose: print(cmd)
     run(cmd, shell=True, capture_output=True)
 
+print('Done!')
+
+
+print('Save command... ', end='')
+commands_file = Path(working_dir, 'commands.txt')
+command = '\n'.join([querydb, targetdb, search, results])
+with open(commands_file, 'w+') as f:
+    f.write(command)
 print('Done!')
