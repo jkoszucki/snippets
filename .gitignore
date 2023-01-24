@@ -1,5 +1,4 @@
 analysis/.ipy*
-
 clinker-groups-test
-
 .DS_Store
+*.ipynb_checkpoints*
