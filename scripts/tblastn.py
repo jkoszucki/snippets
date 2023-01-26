@@ -21,6 +21,10 @@ from Bio.SeqRecord import SeqRecord
 # results_tsv = Path(working_dir, '')
 # msa = Path(working_dir)
 
+
+
+
+#### TBLASTN ####
 # query & target are fasta files
 # cmd = f'tblastn -query {query} -subject {target} -outfmt "6 qseqid sseqid pident evalue bitscore qcovs sstart send"'
 
