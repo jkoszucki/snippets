@@ -5,3 +5,4 @@ clinker-groups-test
 data
 ./analysis/1_PHD_PROJECT/1_ASSEMBLIES_QC/data/*
 analysis/5_ANNOTATION/tables/*
+analysis/4_GWAS/KL107.tsv
