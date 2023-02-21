@@ -42,9 +42,9 @@ print('Provide prophage file names (identifiers) for visualization: ')
 # paths
 prophageIDs = input().split()
 
-genbank_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/DATABASES/ANNOTATION_IDENT30_COV80-KPH-KBVP1/3_PROPAHGES_GENBANK')
-working_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR/PROPHAGE_VISUALIZATION')
-gene_functions = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/DATABASES/ANNOTATION_IDENT30_COV80-KPH-KBVP1/gf-KPH-KBVP1.csv')
+genbank_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/MCB_CLOUD/ANALYSIS/PROPHAGES-KPH-KBV_2023-02_5KB_EXTENDED/PROPHAGES-KPH-KBV_2023-02_5KB_EXTENDED/3_ANNOTATION_IDENT50_COV80/3_GENBANK')
+working_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR')
+# gene_functions = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/DATABASES/ANNOTATION_IDENT30_COV80-KPH-KBVP1/gf-KPH-KBVP1.csv')
 
 clinker_output = Path(working_dir, 'clinker.html')
 easyfig_output = Path(working_dir, 'easyfig.png')
@@ -57,7 +57,8 @@ prophageIDs = ['"' + str(Path(genbank_dir, f'{id}.gb')) + '"' for id in prophage
 
 # get commands
 easyfig = get_easyfig_cmd(prophageIDs, easyfig_output, leg_name='PC')
-clinker = get_clinker_cmd(prophageIDs, clinker_output, gene_functions=gene_functions)
+clinker = get_clinker_cmd(prophageIDs, clinker_output)
+# clinker = get_clinker_cmd(prophageIDs, clinker_output, gene_functions=gene_functions)
 
 # print commands
 print(easyfig)
