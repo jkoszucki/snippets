@@ -42,8 +42,8 @@ print('Provide prophage file names (identifiers) for visualization: ')
 # paths
 prophageIDs = input().split()
 
-genbank_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/MCB_CLOUD/ANALYSIS/PROPHAGES-KPH-KBV_2023-02_5KB_EXTENDED/PROPHAGES-KPH-KBV_2023-02_5KB_EXTENDED/3_ANNOTATION_IDENT50_COV80/3_GENBANK')
-working_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR')
+genbank_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR/2_PROPHAGE_VISUALIZATION/2_GENBANK')
+working_dir = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/WORKING-DIR/2_PROPHAGE_VISUALIZATION/')
 # gene_functions = Path('/Users/januszkoszucki/MGG Dropbox/Janusz Koszucki/data/DATABASES/ANNOTATION_IDENT30_COV80-KPH-KBVP1/gf-KPH-KBVP1.csv')
 
 clinker_output = Path(working_dir, 'clinker.html')
