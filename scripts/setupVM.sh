@@ -1,5 +1,6 @@
 # customize .profile | .bash_profile | .bashrc
 
+echo 'export PYTHONSTARTUP=~/.pythonstartup' >> ~/.profile
 
 alias ll="ls -l"
 alias la="ls -la"
@@ -18,10 +19,12 @@ alias sp="source ~/.profile"
 
 # mamba installation guide - https://www.youtube.com/watch?v=yeXDyF6_VwQ
 echo 'Check mamba version: https://github.com/conda-forge/miniforge'
-MAMBA_DIR='~/mamba'
+MAMBA_DIR='~/mambaforge'
 
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
 bash Mambaforge*.sh
+
+mamba install -c conda-forge -c bioconda biopython pandas snakemake pathlib matplotlib
 
 # mount storage
 sudo mount -t ceph 192.168.21.201:6789,192.168.21.202:6789,192.168.21.203:6789:/Projects/BINF/MostowyLab/ storage -o name=jkoszucki,secret=AQBg9fFisk4zNxAAWMvSWi98Smp2I/Z1Ijsg6A==
@@ -49,5 +52,18 @@ sudo mv /usr/local/bin/rmate /usr/local/bin/rsubls
 # OUTPUT_CLOUD_PATH="$ECF_CLOUD_PATH_COMPLETE/ecf-explorer/output"
 # OUTPUT_LOCAL_PATH="$ECF_LOCAL_PATH/phage-ECF-workdir-refseq-hhblits-102022/ecf-explorer/output"
 # rsync -r --progress  --exclude 'ecfs-dbs' --exclude 'ecfs-final' "$OUTPUT_CLOUD_PATH" "$OUTPUT_LOCAL_PATH"
+
+
+
+# .pythonstartup
+touch ~/.pythonstartup
+
+echo 'import matplotlib.pyplot as plt' >> ~/.pythonstartup
+echo 'import pandas as pd' >> ~/.pythonstartup
+echo 'import numpy as np' >> ~/.pythonstartup
+echo 'from Bio import SeqIO' >> ~/.pythonstartup
+echo 'from pathlib import Path' >> ~/.pythonstartup
+
+
 
 
