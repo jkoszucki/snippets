@@ -26,6 +26,11 @@ bash Mambaforge*.sh
 # mount storage
 sudo mount -t ceph 192.168.21.201:6789,192.168.21.202:6789,192.168.21.203:6789:/Projects/BINF/MostowyLab/ storage -o name=jkoszucki,secret=AQBg9fFisk4zNxAAWMvSWi98Smp2I/Z1Ijsg6A==
 
+### ssh sublime text
+sudo curl -o /usr/local/bin/rmate https://raw.githubusercontent.com/aurora/rmate/master/rmate
+sudo chmod +x /usr/local/bin/rmate
+sudo mv /usr/local/bin/rmate /usr/local/bin/rsubls
+
 
 # ### mirror cloud
 # ECF_CLOUD_PATH='/home/MCB/kszczepaniak/storage/dbmgg/project-ECF/phage-ECF-workdir-refseq-hhblits-102022'
@@ -44,3 +49,5 @@ sudo mount -t ceph 192.168.21.201:6789,192.168.21.202:6789,192.168.21.203:6789:/
 # OUTPUT_CLOUD_PATH="$ECF_CLOUD_PATH_COMPLETE/ecf-explorer/output"
 # OUTPUT_LOCAL_PATH="$ECF_LOCAL_PATH/phage-ECF-workdir-refseq-hhblits-102022/ecf-explorer/output"
 # rsync -r --progress  --exclude 'ecfs-dbs' --exclude 'ecfs-final' "$OUTPUT_CLOUD_PATH" "$OUTPUT_LOCAL_PATH"
+
+
