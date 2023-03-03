@@ -1,3 +1,6 @@
+#### CODE IS NOT FUNCTIONAL AND SERVES AS GUIDELINE FOR FUTURE CODE
+
+
 # customize .profile | .bash_profile | .bashrc
 
 echo 'export PYTHONSTARTUP=~/.pythonstartup' >> ~/.profile
